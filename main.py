@@ -21,7 +21,7 @@ def to_string_format(x):
     return "->".join(x)
 
 
-def execfpgrowth(min_support, min_confidence, discount):
+def execfpgrowth(min_support, min_confidence):
     url = ("https://docs.google.com/spreadsheets/d/1VqTaGSr5vGu8qSwk2O0IIIjsPMCFyVvS/gviz/tq?tqx=out:csv&sheet"
            "=Sheet1")
     groceries = pd.read_csv(url)
@@ -31,22 +31,22 @@ def execfpgrowth(min_support, min_confidence, discount):
     print(len(transactions))
     transformed_data = {frozenset(item): 1 for item in transactions}
     start = time.time()
+
     fp_tree, header_table = fptree.build_fp_tree(transformed_data, min_support)
     js = list(fptree.fp_tree_to_json(fp_tree).items())
     st.title("FP Tree")
     st.json(js[2][1])
-    patterns = pyfpgrowth.find_frequent_patterns(transactions, min_support)  # 2 is the minimum support count
+    patterns = pyfpgrowth.find_frequent_patterns(transactions, min_support)
 
-    # st.write(patterns)
-    # Generate association rules from the frequent patterns
-    rules2 = pyfpgrowth.generate_association_rules(patterns, min_confidence)  # 0.7 is the minimu
+    rules2 = pyfpgrowth.generate_association_rules(patterns, min_confidence)
     table_data = []
     for consequent, (antecedent, confidence) in rules2.items():
         antecedent_str = frozenset_to_str(antecedent)
         consequent_str = frozenset_to_str(consequent)
-        support = patterns[consequent]  # Access support directly from patterns
+        support = patterns[consequent]
+        lift_ratio = confidence/support
         table_data.append(
-            {'Rule': antecedent_str+' => '+consequent_str, 'Support': support/len(transactions), 'Confidence': confidence, 'Discount':discount})
+            {'Rule': antecedent_str+' => '+consequent_str, 'Support': support/len(transactions), 'Confidence': confidence, 'Lift Ratio':lift_ratio})
     st.title("Association Rules")
     st.table(table_data)
     end = time.time()
@@ -56,6 +56,5 @@ def execfpgrowth(min_support, min_confidence, discount):
 if __name__ == '__main__':
     min_support = st.number_input('Insert Minimum Support')
     min_confidence = st.number_input('Insert Minimum Confidence')
-    discount = st.number_input('Insert Discount')
     if st.button('Process'):
-        execfpgrowth(min_support, min_confidence, discount)
+        execfpgrowth(min_support, min_confidence)
