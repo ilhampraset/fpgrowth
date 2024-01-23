@@ -1,10 +1,12 @@
 import json
+import math
 import string
 import time
 import pyfpgrowth
 from mlxtend.frequent_patterns import fpgrowth, association_rules
 import pandas as pd
 import fptree
+import fp
 import streamlit as st
 from mlxtend.preprocessing import TransactionEncoder
 
@@ -26,13 +28,18 @@ def execfpgrowth(min_support, min_confidence):
            "=Sheet1")
     groceries = pd.read_csv(url)
     transactions = groceries['barang'].apply(lambda t: t.split(', '))
-
+    min_support = math.floor(min_support * len(transactions))
+    print(min_support)
     transactions = list(transactions)
+
     print(len(transactions))
     transformed_data = {frozenset(item): 1 for item in transactions}
+    print(len(transformed_data))
     start = time.time()
 
-    fp_tree, header_table = fptree.build_fp_tree(transformed_data, min_support)
+    fp_tree, header_table = fptree.build_fp_tree(transactions, min_support)
+    print(transactions)
+
     js = list(fptree.fp_tree_to_json(fp_tree).items())
     st.title("FP Tree")
     st.json(js[2][1])
