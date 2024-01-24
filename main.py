@@ -31,10 +31,13 @@ def execfpgrowth(min_support, min_confidence):
     min_support = math.floor(min_support * len(transactions))
     print(min_support)
     transactions = list(transactions)
-
-    print(len(transactions))
+    te = TransactionEncoder()
+    te_ary = te.fit(transactions).transform(transactions)
+    df = pd.DataFrame(te_ary, columns=te.columns_)
+    print(df)
+    st.table(df)
     transformed_data = {frozenset(item): 1 for item in transactions}
-    print(len(transformed_data))
+
     start = time.time()
 
     fp_tree, header_table = fptree.build_fp_tree(transactions, min_support)
