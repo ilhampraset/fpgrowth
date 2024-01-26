@@ -38,7 +38,7 @@ def execfpgrowth(min_support, min_confidence):
         antecedent_str = frozenset_to_str(antecedent)
         consequent_str = frozenset_to_str(consequent)
         supports = patterns[consequent] / len(transactions)
-        lift_ratio = confidence / support
+        lift_ratio = confidence / msupport
         count = count + 1
         table_data.append(
             {'No': count, 'Rule': antecedent_str + ' => ' + consequent_str, 'Support': supports,
